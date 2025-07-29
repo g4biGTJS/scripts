@@ -17,7 +17,7 @@ local gameTitles = {
 }
 
 local currentGameId = game.PlaceId
-local gameTitle = gameTitles[currentGameId] or "OLIVE HUB"
+local gameTitle = gameTitles[currentGameId] or "GAME NOT SUPPORTED"
 
 -- Background frame (full screen)
 local background = Instance.new("Frame")
