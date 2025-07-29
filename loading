@@ -116,11 +116,11 @@ for i, letter in ipairs(gameTitleLetters) do
     table.insert(gameTitleFrames, letterFrame)
 end
 
--- Loading bar container (full width)
+-- Loading bar container (original width)
 local loadingContainer = Instance.new("Frame")
 loadingContainer.Name = "LoadingContainer"
-loadingContainer.Size = UDim2.new(0.8, 0, 0.08, 0) -- Wider loading bar
-loadingContainer.Position = UDim2.new(0.1, 0, 0.85, 0) -- Centered horizontally
+loadingContainer.Size = UDim2.new(0.6, 0, 0.08, 0) -- Original width
+loadingContainer.Position = UDim2.new(0.2, 0, 0.85, 0) -- Original position
 loadingContainer.BackgroundTransparency = 1
 loadingContainer.Parent = mainContainer
 
