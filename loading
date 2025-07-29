@@ -9,6 +9,23 @@ gui.IgnoreGuiInset = true
 gui.ResetOnSpawn = false
 gui.Parent = player:WaitForChild("PlayerGui")
 
+-- Game detection
+local gameTitles = {
+    [126884695634066] = "GROW A GARDEN",
+    [109983668079237] = "STEAL A BRAINROT",
+    [79546208627805] = "99 NIGHTS IN THE FOREST"
+}
+
+local gameIds = {
+    [126884695634066] = "126884695634066",
+    [109983668079237] = "109983668079237",
+    [79546208627805] = "79546208627805"
+}
+
+local currentGameId = game.PlaceId
+local gameTitle = gameTitles[currentGameId] or "OLIVE HUB"
+local gameIdText = gameIds[currentGameId] or ""
+
 -- Background frame
 local background = Instance.new("Frame")
 background.Name = "Background"
@@ -77,17 +94,22 @@ subtitleContainer.Position = UDim2.new(0, 0, 0.55, 0)
 subtitleContainer.BackgroundTransparency = 1
 subtitleContainer.Parent = mainContainer
 
--- "GROW A GARDEN" subtitle
-local gardenLetters = {"G", "R", "O", "W", " ", "A", " ", "G", "A", "R", "D", "E", "N"}
-local gardenFrames = {}
-local gardenTotalWidth = 0.8
-local gardenSpacing = gardenTotalWidth / #gardenLetters
+-- Game title text (centered like OLIVE HUB)
+local gameTitleLetters = {}
+for letter in gameTitle:gmatch(".") do
+    table.insert(gameTitleLetters, letter)
+end
 
-for i, letter in ipairs(gardenLetters) do
+local gameTitleFrames = {}
+local gameTitleTotalWidth = 0.8
+local gameTitleSpacing = gameTitleTotalWidth / #gameTitleLetters
+local gameTitleStartPosition = 0.5 - (gameTitleTotalWidth / 2)
+
+for i, letter in ipairs(gameTitleLetters) do
     local letterFrame = Instance.new("TextLabel")
     letterFrame.Name = letter == " " and "Space" .. i or letter .. i
-    letterFrame.Size = UDim2.new(gardenSpacing, 0, 1, 0)
-    letterFrame.Position = UDim2.new((i-1)*gardenSpacing + 0.1, 0, 0, 0)
+    letterFrame.Size = UDim2.new(gameTitleSpacing, 0, 1, 0)
+    letterFrame.Position = UDim2.new(gameTitleStartPosition + (i-1)*gameTitleSpacing + gameTitleSpacing/2, 0, 0.5, 0)
     letterFrame.AnchorPoint = Vector2.new(0.5, 0.5)
     letterFrame.BackgroundTransparency = 1
     letterFrame.Text = letter
@@ -98,14 +120,36 @@ for i, letter in ipairs(gardenLetters) do
     letterFrame.TextStrokeTransparency = 0.9
     letterFrame.TextStrokeColor3 = Color3.fromRGB(80, 150, 120)
     letterFrame.Parent = subtitleContainer
-    table.insert(gardenFrames, letterFrame)
+    table.insert(gameTitleFrames, letterFrame)
 end
+
+-- Game ID container
+local gameIdContainer = Instance.new("Frame")
+gameIdContainer.Name = "GameIdContainer"
+gameIdContainer.Size = UDim2.new(1, 0, 0.1, 0)
+gameIdContainer.Position = UDim2.new(0, 0, 0.7, 0)
+gameIdContainer.BackgroundTransparency = 1
+gameIdContainer.Parent = mainContainer
+
+-- Game ID text (centered)
+local gameIdLabel = Instance.new("TextLabel")
+gameIdLabel.Name = "GameIdLabel"
+gameIdLabel.Size = UDim2.new(1, 0, 1, 0)
+gameIdLabel.Position = UDim2.new(0.5, 0, 0.5, 0)
+gameIdLabel.AnchorPoint = Vector2.new(0.5, 0.5)
+gameIdLabel.BackgroundTransparency = 1
+gameIdLabel.Text = gameIdText ~= "" and "Game ID: " .. gameIdText or ""
+gameIdLabel.TextColor3 = Color3.fromRGB(120, 100, 140)
+gameIdLabel.Font = Enum.Font.Gotham
+gameIdLabel.TextSize = 14
+gameIdLabel.TextTransparency = 1
+gameIdLabel.Parent = gameIdContainer
 
 -- Loading bar container
 local loadingContainer = Instance.new("Frame")
 loadingContainer.Name = "LoadingContainer"
 loadingContainer.Size = UDim2.new(0.6, 0, 0.08, 0)
-loadingContainer.Position = UDim2.new(0.2, 0, 0.75, 0)
+loadingContainer.Position = UDim2.new(0.2, 0, 0.85, 0)
 loadingContainer.BackgroundTransparency = 1
 loadingContainer.Parent = mainContainer
 
@@ -192,9 +236,9 @@ local function animateIn()
         end)()
     end
     
-    -- Animate subtitle
+    -- Animate game title
     wait(#letters * 0.1 + 0.5)
-    for i, frame in ipairs(gardenFrames) do
+    for i, frame in ipairs(gameTitleFrames) do
         local delay = i * 0.05
         
         coroutine.wrap(function()
@@ -206,8 +250,14 @@ local function animateIn()
         end)()
     end
     
+    -- Show game ID if available
+    if gameIdText ~= "" then
+        wait(0.3)
+        TweenService:Create(gameIdLabel, TweenInfo.new(0.5), {TextTransparency = 0}):Play()
+    end
+    
     -- Show loading elements
-    wait(0.8)
+    wait(0.5)
     TweenService:Create(loadingText, TweenInfo.new(0.5), {TextTransparency = 0}):Play()
     
     -- Animate loading bar
@@ -226,9 +276,14 @@ local function animateOut()
     TweenService:Create(loadingText, TweenInfo.new(0.3), {TextTransparency = 1}):Play()
     TweenService:Create(loadingContainer, TweenInfo.new(0.5), {Size = UDim2.new(0, 0, 0.08, 0)}):Play()
     
-    -- Fade out subtitle
-    for i, frame in ipairs(gardenFrames) do
-        local delay = (#gardenFrames - i) * 0.03
+    -- Fade out game ID
+    if gameIdText ~= "" then
+        TweenService:Create(gameIdLabel, TweenInfo.new(0.3), {TextTransparency = 1}):Play()
+    end
+    
+    -- Fade out game title
+    for i, frame in ipairs(gameTitleFrames) do
+        local delay = (#gameTitleFrames - i) * 0.03
         
         coroutine.wrap(function()
             wait(delay)
